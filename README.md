@@ -36,13 +36,14 @@ It supports command parsing, execution, redirections, pipelines, environment var
 
 ## 📁 Project Structure
 
+```
 42sh/
-├── src/ # Core source code (parsing, exec, env, builtins)
-├── include/ # Header files
-├── tests/ # Unit and functional tests
-├── Makefile # Build system
-└── README.md # Project description
-
+├── src/         # Core source code (parsing, exec, env, builtins)
+├── include/     # Header files
+├── tests/       # Unit and functional tests
+├── Makefile     # Build system
+└── README.md    # Project description
+```
 
 ---
 
