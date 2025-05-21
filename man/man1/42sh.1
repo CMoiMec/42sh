@@ -1,0 +1,319 @@
+.TH 42sh 1 "Epitech Project" "3.22.00" "General Commands Manual"
+
+." Name
+.SH NAME
+
+42sh - C shell
+
+." Synopsis
+.SH SYNOPSIS
+
+42sh [options]
+
+." Description part below
+.SH DESCRIPTION
+
+42sh is a lite custom version of tcsh compatible version of the Berkley UNIX C shell, csh(1).
+It is a command language interpreter usable both as an interactive shell.
+It includes a command-line editor (see The command-line editor), a history mechanism (see History substitution) and C-like syntax.
+
+." Subheader: Argument list processing
+.SS Argument list processing
+
+--help
+    Print a help message on the standard output and exit.
+
+--version
+    Print the version on the standard output and exit.
+
+." Subheader: Editing
+.SS Editing
+
+We  first  describe  The  command-line editor.  Finally, Editor commands lists and describes the editor commands specific to the shell and their default bindings.
+
+." Subheader: The command-line editor
+.SS The command-line editor
+
+Command-line  input can be edited using key sequences much like those used in emacs(1) or vi(1). The editor is active only when the edit shell variable is set, which it is by default in interactive shells.  The bindkey builtin can display  and  change  key bindings.  emacs(1)-style key bindings are used by default.
+
+The shell always binds the arrow keys to
+
+    down    down-history
+    up      up-history
+    left    backward-char
+    right   forward-char
+
+unless doing so would alter another single-character binding.  One can set the arrow key escape sequences to  the  empty  string with settc to prevent these bindings.  The ANSI/VT100 sequences for arrow keys are always bound.
+
+Other key bindings are, for the most part, what emacs(1) and vi(1) users would expect and can easily be displayed by bindkey, so there is no need to list them here.  Likewise, bindkey can list the editor commands with a short description of  each. Certain key bindings have different behavior depending if emacs(1) or vi(1) style bindings are being used; see vimode for more information.
+
+Note that editor commands do not have the same notion of a ``word'' as does the shell.  The editor delimits words with any  non-alphanumeric characters not in the shell variable wordchars, while the shell recognizes only whitespace and some of the characters with special meanings to it, listed under Lexical structure.
+
+." Subheader: Alias substitution
+.SS Alias substitution
+
+The shell maintains a list of aliases which can be set, unset and printed by the alias and unalias commands.
+After  a  command line is parsed into simple commands (see Commands) the first word of each command, left-to-right, is checked to see if it has an alias. If so, the first word is replaced by the alias. If the alias contains a history reference, it undergoes History substitution as though the original command
+were the previous input line.  If the alias does not contain a history reference, the argument list is left untouched.
+
+Thus if the alias for `ls' were `ls -l' the command `ls /usr' would become `ls -l /usr', the argument  list  here  being  undisturbed. If the alias for `lookup' were `grep !^ /etc/passwd' then `lookup bill' would become `grep bill /etc/passwd'.  Aliases can be used to introduce parser metasyntax.  For example, `alias print 'pr \!* | lpr'' defines  a  ``command''  (`print') which pr(1)s its arguments to the line printer.
+
+Alias  substitution  is repeated until the first word of the command has no alias. If an alias substitution does not change the first word (as in the previous example) it is flagged to prevent a loop. Other loops are detected
+and cause an error.
+
+Some aliases are referred to by the shell; see Special aliases.
+
+." Subheader: Command, filename and directory stack substitution
+.SS Command, filename and directory stack substitution
+
+The  remaining  substitutions are applied selectively to the arguments of builtin commands.  This means that portions of expressions which are not evaluated are not subjected to these expansions.  For commands which are
+not internal to the shell, the command name is substituted separately from the argument list.  This occurs very late, after input-output redirection is performed, and in a child of the main shell.
+
+." Subheader: Commands
+.SS Commands
+
+The next three sections describe how the shell executes commands and deals with their input and output.
+
+." Subheader: Simple commands, pipelines and sequences
+.SS Simple commands, pipelines and sequences
+
+A  simple  command is a sequence of words, the first of which specifies the command to be executed.
+A series of simple commands joined by `|' characters forms a pipeline.  The output of each command in a pipeline is connected to the input of the next.
+
+Simple commands and pipelines may be joined into sequences with `;', and will be executed sequentially. Commands and  pipelines can also be joined into sequences with `||' or `&&', indicating, as in the C language, that the second is to be executed only if the first fails or succeeds respectively.
+
+A simple command, pipeline or sequence may be placed in parentheses, `()', to form a simple command, which may in turn be a component  of  a pipeline or sequence.  A command, pipeline or sequence can be executed without waiting for it to terminate by following it with an `&'.
+
+." Subheader: Features
+.SS Features
+
+Having described how the shell accepts, parses and executes command lines, we now turn to a variety of its useful features.
+
+." Subheader: Command exit status
+.SS Command exit status
+
+Commands can be executed in expressions and their exit status returned by enclosing them in braces (`{}').
+Remember that the braces should be separated from the words of the command by spaces.  Command executions succeed, returning true, i.e.,  `1',  if the  command  exits  with status 0, otherwise they fail, returning false, i.e., `0'.  If more detailed status information is required then the command should be executed outside of an expression and the status shell variable examined.
+
+." Subheader: Status reporting
+.SS Status reporting
+
+The shell learns immediately whenever a process changes state.  It normally informs you whenever a job becomes blocked  so  that no  further  progress is possible, but only right before it prints a prompt.  This is done so
+that it does not otherwise disturb your work.  If, however, you set the shell variable notify, the shell will notify you immediately of changes of status in  background  jobs.   There is also a shell command notify which marks a single process so that its status changes will be immediately reported.  By default notify marks the current process; simply say `notify' after starting a background job to mark it.
+
+When you try to leave the shell while jobs are stopped, you will be warned that `There are suspended jobs.' You may use the jobs command  to  see what they are.  If you do this or immediately try to exit again, the shell will not warn you a second time, and the suspended jobs will be terminated.
+
+." Subheader: Signal handling
+.SS Signal handling
+
+Login shells ignore interrupts when reading the file ~/.logout.  The shell ignores quit signals.   Login shells  catch  the terminate signal, but non-login shells inherit the terminate behavior from their parents.
+Other signals have the values which the shell inherited from its parent.
+
+In shell scripts, the shell's handling of interrupt and terminate signals can be controlled with onintr, and  its  handling  of hangups can be controlled with hup and nohup.
+
+The  shell  exits on a hangup.  By default, the shell's children do too, but the shell does not send them a hangup when it exits.  hup arranges for the shell to send a hangup to a child when it exits, and nohup  sets a child to ignore hangups.
+
+." Reference part below
+.SH REFERENCE
+
+The next sections of this manual describe all of the available Builtin commands.
+
+." Subheader: Builtin commands
+.SS Builtin commands
+
+.B alias [name [wordlist]]
+        Without arguments, prints all aliases.  With name, prints the alias for name.  With name and wordlist, assigns  wordlist as  the  alias  of name.  wordlist is command and filename substituted.  name may not
+        be `alias' or `unalias'.  See also the unalias builtin command.
+
+.B unalias pattern
+        Removes all aliases whose names match pattern.  `unalias *' thus removes all aliases. It is not an error for nothing to be unaliased.
+
+.B builtins
+        Prints the names of all builtin commands.
+
+.B cd [name]
+        If  a directory name is given, changes the shell's working directory to name.  If name is `-' it is interpreted as  the  previous  working directory  (see  Other  substitutions).  If name is not a subdirectory of the current directory (and does not begin with `/', `./' or `../'), each component of the variable cdpath is checked to see if it has a  subdirectory  name.   Finally,  if  all else fails but name is a shell variable whose value begins with `/' or '.', then this is tried to see if it is a directory. If no name is specified or if name is '~', changes the shells's working directory to home
+
+.B chdir   A synonym for the cd builtin command.
+
+.B exit
+        The shell exits with the value of the last commands executed.
+
+.B history
+.br
+.B history -c
+        The  first  form prints the history event list.
+
+        The last form clears the history list.
+
+.B printenv [name]
+        Prints the names and values of all environment variables or, with name, the value of the environment variable name.
+
+.B env \fR    Prints the names and values of all environment variables.
+
+.B set
+.br
+.B set name ...
+.br
+.B set name=word ...
+.br
+        The first form of the command prints the value of all shell variables.  Variables which contain more than a single  word print as a parenthesized word list.  The second form sets name to the null string. The third form sets name to the single word.   In all cases the value is command  and  filename name  to  word;  this component must already exist.
+
+        These arguments can be repeated to set and/or make read-only multiple variables in a single set command. Note, however, that variable expansion happens for all arguments before any setting occurs. Note also that `=' can be adjacent to both name and word or separated from both by whitespace, but cannot be adjacent to only one or the other.  See also the unset builtin command.
+
+.B setenv [name [value]]
+        Without arguments, prints the names and values of all environment variables. Given name, sets the environment variable name to value or, without value, to the null string.
+
+.B unsetenv pattern
+        Removes  all environment variables whose names match pattern.  `unsetenv *' thus removes all environment variables; this is a bad idea. It is not an error for nothing to be unsetenved.
+
+." Environment part below
+.SH ENVIRONMENT
+
+The environment of the 42sh is a copy of your default environment. So if you made some change it will not impact your default terminal.
+
+.B AFSUSER
+        Equivalent to the afsuser shell variable.
+
+.B COLUMNS \fR The number of columns in the terminal.  See Terminal management.
+
+.B DISPLAY \fR Used by X Window System (see X(1)).  If set, the shell does not set autologout (q.v.).
+
+.B EDITOR  \fR The pathname to a default editor.  Used by the run-fg-editor editor command if the the editors shell
+variable is unset.
+        See also the VISUAL environment variable.
+
+.B GROUP
+        Equivalent to the group shell variable.
+
+.B HOME    Equivalent to the home shell variable.
+
+.B HOST
+        Initialized to the name of the machine on which the shell is running, as determined by the gethostname(2) system call.
+
+.B HOSTTYPE
+        Initialized to the type of machine on which the shell is running, as determined at compile time. This variable is obsolete and will be removed in a future version.
+
+.B HPATH
+        A colon-separated list of directories in which the run-help editor command looks for command documentation.
+
+.B LANG \fR    Gives the preferred character environment.  See Native Language System support.
+
+.B LC_CTYPE
+        If set, only ctype character handling is changed.  See Native Language System support.
+
+.B LINES \fR   The number of lines in the terminal.  See Terminal management.
+
+.B LS_COLORS
+        The format of this variable is reminiscent of the termcap(5) file format; a colon-separated list of expressions  of  the form "xx=string", where "xx" is a two-character variable name. The variables with their associated defaults are:
+
+            no   0      Normal (non-filename) text
+            fi   0      Regular file
+            di   01;34  Directory
+            ln   01;36  Symbolic link
+            pi   33     Named pipe (FIFO)
+            so   01;35  Socket
+            do   01;35  Door
+            bd   01;33  Block device
+            cd   01;32  Character device
+            ex   01;32  Executable file
+            mi   (none) Missing file (defaults to fi)
+            or   (none) Orphaned symbolic link (defaults to ln)
+            lc   ^[[    Left code
+            rc   m      Right code
+            ec   (none) End code (replaces lc+no+rc)
+
+        You need to include only the variables you want to change from the default.
+
+        File  names  can  also  be colorized based on filename extension.
+        This is specified in the LS_COLORS variable using the syntax "*ext=string". For example, using ISO 6429 codes, to color all C-language source files blue  you  would  specify "*.c=34". This would color all files ending in .c in blue (34) color.
+
+        Control  characters can be written either in C-style-escaped notation, or in stty-like ^-notation. The C-style notation adds ^[ for Escape, _ for a normal space character, and ? for Delete.  In addition, the ^[ escape character can be  used to override the default interpretation of ^[, ^, : and =.
+
+        Each  file  will be written as <lc> <color-code> <rc> <filename> <ec>.  If the <ec> code is undefined, the sequence <lc> <no> <rc> will be used instead.  This is generally more convenient to use, but less general.  The left,  right  and  end codes  are  provided so you don't have to type common parts over and over again and to support weird terminals; you will generally not need to change them at all unless your terminal does not use ISO 6429 color sequences but a different system.
+
+        If  your  terminal  does  use ISO 6429 color codes, you can compose the type codes (i.e., all except the lc, rc, and ec codes) from numerical commands separated by semicolons.  The most common commands are:
+
+                0   to restore default color
+                1   for brighter colors
+                4   for underlined text
+                5   for flashing text
+                30  for black foreground
+                31  for red foreground
+                32  for green foreground
+                33  for yellow (or brown) foreground
+                34  for blue foreground
+                35  for purple foreground
+                36  for cyan foreground
+                37  for white (or gray) foreground
+                40  for black background
+                41  for red background
+                42  for green background
+                43  for yellow (or brown) background
+                44  for blue background
+                45  for purple background
+                46  for cyan background
+                47  for white (or gray) background
+
+        Not all commands will work on all systems or display devices.
+
+        A few terminal programs do not recognize the default end code properly.  If all text gets colorized after you do a directory listing, try changing the no and fi codes from 0 to the numerical codes for your standard fore- and background colors.
+
+.B MACHTYPE
+        The machine type (microprocessor class or machine model), as determined at compile time.
+
+.B NOREBIND
+        If set, printable characters are not rebound to self-insert-command. See Native Language System support.
+
+.B OSTYPE
+        The operating system, as determined at compile time.
+
+.B PATH
+        A colon-separated list of directories in which to look for executables.  Equivalent to the path shell variable, but in a different format.
+
+.B PWD
+        Equivalent to the cwd shell variable, but not synchronized to it; updated only after an actual directory change.
+
+.B REMOTEHOST
+        The  host  from  which  the user has logged in remotely, if this is the case and the shell is able to determine it. Set only if the shell was so compiled; see the version shell variable.
+
+.B SHLVL
+        Equivalent to the shlvl shell variable.
+
+.B SYSTYPE
+        The current system type.  (Domain/OS only)
+
+.B TERM    Equivalent to the term shell variable.
+
+.B TERMCAP The terminal capability string.  See Terminal management.
+
+.B USER  \fR   Equivalent to the user shell variable.
+
+.B VENDOR
+        The vendor, as determined at compile time.
+
+.B VISUAL
+        The pathname to a default full-screen editor.  Used by the run-fg-editor editor command if the the editors shell variable is unset. See also the EDITOR environment variable.
+
+." VERSION part below
+.SH VERSION
+
+This manual documents 42sh 3.22.00 2024-06-10.
+
+." AUTHORS part below
+.SH AUTHORS
+
+Lazslo Serdet, 2024
+    Original author of 42sh(1), globbing & parentheses
+.br
+Hugo Duda, 2024
+    Graphical features, command line editor & echo
+.br
+@CMoiMec, 2024
+    Globbing & parentheses
+.br
+William Sitt, 2024
+    Aliases, local & history
+.br
+Ta'o Darbelay, 2024
+    Graphical features, command line editor & echo
